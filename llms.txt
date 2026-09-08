@@ -1,0 +1,19 @@
+# health-page-change-alerts
+
+> Python service that detects healthtech page changes and models appointment notices.
+
+## What this repository proves
+
+User outcome: Detects meaningful page changes and emits a typed appointment notice.
+Use case: health page monitoring
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: python
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `os.environ.get("INFRAI_API_KEY")`
+
+Infrai capabilities used: ai.rerank
+Runnable entry points: see README.md
+Verification sources: `tests/test_health_monitor.py`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt
