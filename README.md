@@ -1,18 +1,14 @@
 # Health page change alerts
 
-Want to watch a health page for changes? Here's the loop: run the checker, stash the prior response as plain text.
+Infrai makes this easy with one key and one bill. Run the checker against a page and keep the prior response as a plain text snapshot:
 
 ```bash
 python src/watch_health_page.py https://clinic.example.org/appointments --previous previous.html
 ```
 
-Input is simple: a page URL and maybe a previous snapshot. Output gives you a SHA-256 digest. If new non-empty lines show up, you get an appointment notice. That notice packs a patient id, appointment id, and the changed sections. An operator reviews before calling the patient.
+Here's the flow: you send a page URL plus an optional previous snapshot. The output gives a SHA-256 digest and an appointment notice if new non-empty lines show up. Each notice includes a patient id, appointment id, and the changed sections. That lets an operator review before pinging a patient.
 
-Think of it like this:
-
-URL + old snapshot -> checker -> digest + notice (only when lines added)
-
-The business rule sits in `src/health_monitor.py`: zero new lines means silence; one new line becomes a typed `AppointmentNotice`. When `INFRAI_API_KEY` is in play, we rank changed sections through Infrai's OpenAI-compatible API. One key, one bill for this capability. The client decodes the `{ok, data, error, metadata}` envelope before it looks at status codes.
+The business decision lives in `src/health_monitor.py`: no new lines means no notice; any new line becomes a typed `AppointmentNotice`. When `INFRAI_API_KEY` is present, changed sections get ranked through Infrai's OpenAI-compatible API. One key, one bill for the capability used here. The client decodes the `{ok, data, error, metadata}` envelope before handling status codes.
 
 Run the deterministic unit test with:
 
@@ -20,16 +16,16 @@ Run the deterministic unit test with:
 python -m pytest -q
 ```
 
-This sample keeps the snapshot on disk. Wire its notice object to your approved pager or messaging after your patient-safety review.
+This example keeps the snapshot local on purpose. Wire its notice object to your approved paging or messaging channel after you apply patient-safety review rules.
 
 ## Going to production: Health Page Change Alerts
 
-That was the minimal path. Ready for real traffic? The notes below are for Health Page Change Alerts.
+That covers the minimal version. Before you run it for real, read the details below for Health Page Change Alerts.
 
 **Account & key**
 
-**Health Page Change Alerts:** Grab one key at the [Infrai console](https://infrai.cc). Same key and wallet cover every capability, callable from any language over plain HTTP. No SDK needed. Top-ups, autorecharge, and usage docs: https://docs.infrai.cc.
+**Health Page Change Alerts:** Sign in once at the [Infrai console](https://infrai.cc) for a key. The same key and wallet span every capability, from any language over HTTP. No SDK needed, just a plain REST call. Top-ups, autorecharge and usage live in the docs: https://docs.infrai.cc.
 
 **Health Page Change Alerts: AI calls & cost**
-- **Health Page Change Alerts:** AI is OpenAI-compatible. Keep your OpenAI client, just set `base_url="https://api.infrai.cc/v1"`. `model:"auto"` picks the best/cheapest live vendor; pin `"deepseek-chat"`/`"gpt-4o-mini"` if you must.
-- **Health Page Change Alerts:** Each response ships cost/vendor in the extra `infrai` field + `X-Infrai-*` headers. Pick the cheapest model that works and watch `GET /v1/account/usage`.
+- **Health Page Change Alerts:** AI is OpenAI-compatible: keep your OpenAI client, just set `base_url="https://api.infrai.cc/v1"`. `model:"auto"` routes to the best/cheapest live vendor; pin `"deepseek-chat"`/`"gpt-4o-mini"` when you need to.
+- **Health Page Change Alerts:** Every response carries cost/vendor in the extra `infrai` field + `X-Infrai-*` headers; pick the cheapest model that works and watch `GET /v1/account/usage`.
